@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>AI Image Detector</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root { --bg: #0b0f13; --panel: #11161c; --text: #eaf0f6; --muted:#9fb0c3; --accent: #6ee7b7; --accent2:#38bdf8; --danger:#f43f5e; }
+		* { box-sizing: border-box }
+		html, body { height: 100% }
+		body {
+			margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+			background: radial-gradient(1200px 600px at 20% 0%, rgba(56,189,248,.15), transparent 45%),
+				radial-gradient(1200px 600px at 80% 0%, rgba(110,231,183,.15), transparent 45%), var(--bg);
+			color: var(--text);
+		}
+		.container { max-width: 880px; margin: 0 auto; padding: 56px 20px 80px }
+		header { display: flex; align-items: center; justify-content: space-between; gap: 16px }
+		.brand { display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 20px; letter-spacing: .3px }
+		.brand-badge { width: 36px; height: 36px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent2)); display: grid; place-items: center; color: #0b0f13; font-weight: 800 }
+		.panel { margin-top: 24px; background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border: 1px solid rgba(255,255,255,.08); border-radius: 16px; padding: 24px }
+		.grid { display: grid; grid-template-columns: 1fr; gap: 24px }
+		@media (min-width: 880px) { .grid { grid-template-columns: 1.2fr .8fr } }
+		h1 { font-size: 40px; line-height: 1.1; margin: 24px 0 8px }
+		.sub { color: var(--muted) }
+		.dropzone { position: relative; border: 2px dashed rgba(255,255,255,.18); border-radius: 14px; padding: 24px; text-align: center; background: rgba(255,255,255,.02) }
+		.dropzone.dragover { border-color: var(--accent2); background: rgba(56,189,248,.08) }
+		.preview { width: 100%; aspect-ratio: 16/10; background: #0d1319; border-radius: 12px; display: grid; place-items: center; overflow: hidden; border: 1px solid rgba(255,255,255,.06) }
+		.preview img { width: 100%; height: 100%; object-fit: contain }
+		.controls { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; margin-top: 16px }
+		button, .btn { appearance: none; border: 0; padding: 12px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; color: #0b0f13; background: linear-gradient(180deg, var(--accent), #3ad2a1); box-shadow: 0 8px 24px rgba(110,231,183,.25) }
+		.secondary { background: #1b242d; color: var(--text); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12) }
+		.muted { color: var(--muted); font-size: 14px }
+		.result { padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.03) }
+		.badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 999px; font-weight: 700; letter-spacing: .3px }
+		.badge.ai { background: rgba(244,63,94,.12); color: #fecdd3; border: 1px solid rgba(244,63,94,.25) }
+		.badge.real { background: rgba(110,231,183,.12); color: #d1fae5; border: 1px solid rgba(110,231,183,.25) }
+		.progress { height: 10px; background: #121922; border-radius: 999px; overflow: hidden; border: 1px solid rgba(255,255,255,.06) }
+		.progress > div { height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); width: 0% }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<header>
+			<div class="brand"><div class="brand-badge">AI</div> Image Detector</div>
+			<a class="btn secondary" href="https://github.com/" target="_blank" rel="noreferrer">GitHub</a>
+		</header>
+
+		<div class="grid">
+			<section>
+				<h1>Is this image AI or Real?</h1>
+				<p class="sub">Upload an image to estimate the probability it was AI-generated. Demo only, not a definitive forensic tool.</p>
+
+				<div id="dropzone" class="dropzone">
+					<div class="preview" id="preview"><span class="muted">Drop image here or click to select</span></div>
+					<div class="controls">
+						<input id="fileInput" type="file" accept="image/*" hidden />
+						<button id="selectBtn">Choose Image</button>
+						<button id="analyzeBtn" class="secondary" disabled>Analyze</button>
+					</div>
+				</div>
+			</section>
+
+			<aside>
+				<div class="panel">
+					<h3>Result</h3>
+					<div id="result" class="result">
+						<p class="muted">No analysis yet.</p>
+					</div>
+				</div>
+			</aside>
+		</div>
+	</div>
+
+	<script>
+	const dropzone = document.getElementById('dropzone');
+	const preview = document.getElementById('preview');
+	const fileInput = document.getElementById('fileInput');
+	const selectBtn = document.getElementById('selectBtn');
+	const analyzeBtn = document.getElementById('analyzeBtn');
+	const resultEl = document.getElementById('result');
+
+	let selectedFile = null;
+
+	function setPreview(file){
+		const url = URL.createObjectURL(file);
+		preview.innerHTML = `<img src="${url}" alt="preview">`;
+		analyzeBtn.disabled = false;
+	}
+
+	dropzone.addEventListener('click', () => fileInput.click());
+	selectBtn.addEventListener('click', (e) => { e.stopPropagation(); fileInput.click(); });
+
+	['dragenter','dragover'].forEach(evt => dropzone.addEventListener(evt, e => {
+		e.preventDefault(); e.stopPropagation(); dropzone.classList.add('dragover');
+	}));
+	['dragleave','drop'].forEach(evt => dropzone.addEventListener(evt, e => {
+		e.preventDefault(); e.stopPropagation(); dropzone.classList.remove('dragover');
+	}));
+	dropzone.addEventListener('drop', e => {
+		const file = e.dataTransfer.files?.[0]; if(!file) return; selectedFile = file; setPreview(file);
+	});
+	fileInput.addEventListener('change', e => { const f = e.target.files?.[0]; if(!f) return; selectedFile = f; setPreview(f); });
+
+	analyzeBtn.addEventListener('click', async (e) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if(!selectedFile) return;
+		analyzeBtn.disabled = true; analyzeBtn.textContent = 'Analyzing...';
+		resultEl.innerHTML = `<p class="muted">Uploading and analyzing...</p><div class="progress"><div id="bar"></div></div>`;
+		try {
+			const form = new FormData();
+			form.append('file', selectedFile);
+			const res = await fetch('/api/detect', { method: 'POST', body: form });
+			if(!res.ok) throw new Error('Request failed');
+			const data = await res.json();
+			const pct = Math.round(data.aiProbability * 100);
+			resultEl.innerHTML = `
+				<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+					<span class="badge ${data.label === 'AI' ? 'ai' : 'real'}">${data.label}</span>
+					<strong style="font-size:24px;">${pct}% AI likelihood</strong>
+				</div>
+				<div class="progress" style="margin-top:12px;"><div style="width:${pct}%"></div></div>
+				<p class="muted" style="margin-top:8px;">File: ${data.fileName || 'unknown'}</p>
+			`;
+		} catch (err) {
+			console.error(err);
+			resultEl.innerHTML = `<p style="color:#fecaca">Error analyzing image.</p>`;
+		} finally {
+			analyzeBtn.disabled = false; analyzeBtn.textContent = 'Analyze';
+		}
+	});
+	</script>
+</body>
+</html>

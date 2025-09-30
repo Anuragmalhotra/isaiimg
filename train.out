@@ -1,0 +1,20 @@
+Epoch 1: improved val_acc=0.4000 -> saved to /Users/anuragmalhotra/ai-image-detector/model.pt
+Val metrics: acc=0.4000 prec=0.0000 rec=0.0000 f1=0.0000 cm=[[2, 1], [2, 0]]
+Epoch 2: improved val_acc=0.6000 -> saved to /Users/anuragmalhotra/ai-image-detector/model.pt
+Val metrics: acc=0.6000 prec=0.0000 rec=0.0000 f1=0.0000 cm=[[3, 0], [2, 0]]
+Epoch 3: improved val_acc=1.0000 -> saved to /Users/anuragmalhotra/ai-image-detector/model.pt
+Val metrics: acc=1.0000 prec=1.0000 rec=1.0000 f1=1.0000 cm=[[3, 0], [0, 2]]
+Epoch 4: train_loss=0.2804 train_acc=0.9767 val_acc=1.0000
+Val metrics: acc=1.0000 prec=1.0000 rec=1.0000 f1=1.0000 cm=[[3, 0], [0, 2]]
+Epoch 5: train_loss=0.1973 train_acc=0.9767 val_acc=1.0000
+Val metrics: acc=1.0000 prec=1.0000 rec=1.0000 f1=1.0000 cm=[[3, 0], [0, 2]]
+Epoch 6: train_loss=0.1646 train_acc=0.9767 val_acc=1.0000
+Val metrics: acc=1.0000 prec=1.0000 rec=1.0000 f1=1.0000 cm=[[3, 0], [0, 2]]
+Epoch 7: train_loss=0.1365 train_acc=0.9767 val_acc=1.0000
+Val metrics: acc=1.0000 prec=1.0000 rec=1.0000 f1=1.0000 cm=[[3, 0], [0, 2]]
+Epoch 8: train_loss=0.0842 train_acc=0.9767 val_acc=1.0000
+Val metrics: acc=1.0000 prec=1.0000 rec=1.0000 f1=1.0000 cm=[[3, 0], [0, 2]]
+Best val_acc=1.0000. Model saved at /Users/anuragmalhotra/ai-image-detector/model.pt
+
+Evaluating on test split (unseen during training)...
+Test metrics: acc=1.0000 prec=1.0000 rec=1.0000 f1=1.0000 cm=[[4, 0], [0, 2]]
